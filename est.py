@@ -19,7 +19,7 @@ pages = ["Worlds Annual CH₄ Emisssions (MCM)",
          "Top 10 coal producing Mines in South Africa", 
          "Page 9", "Page 10"]
 selected_page = st.sidebar.radio("Select Page", pages)
-
+df_main_operating = pd.read_excel('./Est/filtered-coal-Africa-operating.xlsx')
 # Display content based on the selected page
 if selected_page == "Worlds Annual CH₄ Emisssions (MCM)":
     st.title("Worlds Annual CH₄ Emisssions (MCM)")
@@ -99,26 +99,33 @@ elif selected_page == "Global Coal Mine Tracker":
     ## Global Coal Mine Tracker
     def printTrackerInfo():
         st.header("Global Coal Mine Tracker")
-
         st.markdown(
             """
             We are working on this data provided by *Global Coal Mine Tracker*, 
             sourced from *Global Energy Monitor*, October 2023 release.
             """
         )
-
         st.write(
             """
             The dataset contains a list of world coal mines, and our focus is on this site. 
             We are utilizing their data for our analysis.
             """
         )
-
         st.markdown(
             """
             [To download data, click here](https://globalenergymonitor.org/projects/global-coal-mine-tracker/download-data/)
             """
         )
+    def printMinesDetails(df):
+            # Read the Excel file
+        # Display total coal mines and columns
+        st.write(f'Total coal mines: {df.shape[0]}')
+        st.write(f'Total columns: {df.shape[1]}')
+        # Display the first 2 rows of the DataFrame
+        st.dataframe(df.sample(5))
+        st.title(" Separating Africa from all list")
+        st.write("MAJOR FOCUS - AFRICA CONTINENT")
+        st.header("Why South Africa?")
     def showMinesAfrica(counts):
         fig = go.Figure()
         fig.add_trace(go.Bar(
@@ -136,20 +143,8 @@ elif selected_page == "Global Coal Mine Tracker":
 
         # Show the chart using Streamlit
         st.plotly_chart(fig)
-    def printMinesDetails():
-            # Read the Excel file
-        df = pd.read_excel('./Est/coal-est.xlsx')
-        # Display total coal mines and columns
-        st.write(f'Total coal mines: {df.shape[0]}')
-        st.write(f'Total columns: {df.shape[1]}')
-        # Display the first 2 rows of the DataFrame
-        st.dataframe(df.sample(5))
 
-        st.title(" Separating Africa from all list")
-        st.write("MAJOR FOCUS - AFRICA CONTINENT")
-        st.header("Why South Africa?")
-    def MineChart():
-        df = pd.read_excel('./Est/coal-Africa.xlsx')
+    def MineChart(df):
         df_region = df[df['Region'].str.contains('AFRICA', case=False)]
         st.write(f' Total African Registered coal mines = {df_region.shape[0]}\n')
         df_africa = df[df['Country'].str.contains('AFRICA', case=False)]
@@ -159,30 +154,30 @@ elif selected_page == "Global Coal Mine Tracker":
         st.header('List of African countries with number of  registered coal mines')
         st.dataframe(counts.to_frame().T)
         showMinesAfrica(counts.T)
+    df = pd.read_excel('./Est/coal-Africa.xlsx')
     printTrackerInfo()
-    printMinesDetails()
-    MineChart()
+    printMinesDetails(df)
+    MineChart(df)
     # Assuming 'df' is your DataFrame and 'Subregion' is the column you want to filter
     
 
 elif selected_page == "South African Registered coal mines":
     st.title("South African Registered coal mines")
-    def SAmines():
+    def SAmines(df_africa):
         st.title("South African Registered coal mines")
         df_africa = pd.read_excel('./Est/filtered-coal-Africa.xlsx')
         st.write(f' Total South African Registered coal mines = {df_africa.shape[0]}')
         st.dataframe(df_africa.sample(5))
         st.write("See specific information is only available for currently '''operating mines'''.")
-    def SA_OperatingMines():
+    def SA_OperatingMines(df):
         st.header("South African Coal Mines Which are currently at '''operating''' status")
-        df = pd.read_excel('./Est/filtered-coal-Africa.xlsx')
         df = df[df['Status'].str.contains('Operating', case=False)]
         df = df.dropna(subset=['Opening Year'])
-        df_operating = df[df['Opening Year'] != 'TBD']
         #REMOVING THOSE ROWS WHICH HAVE 'TBD' IN THE OPENING YEAR COLUMN
         st.write(f'Total South African Registered coal mines with Status is operating and a known Opening Year = {df.shape[0]}')
-    SAmines()
-    SA_OperatingMines()
+    df = pd.read_excel('./Est/filtered-coal-Africa.xlsx')
+    SAmines(df)
+    SA_OperatingMines(df)
 
 elif selected_page == "Locating Coal Mines":
     def show_map(df_operating):
@@ -268,8 +263,7 @@ elif selected_page == "Locating Coal Mines":
 
 elif selected_page == "Year wise Mines opened in South africa":
     st.title("Year wise Mines opened in South africa")
-    def showPlot():
-        df_operating = pd.read_excel('./Est/filtered-coal-Africa-operating.xlsx')
+    def showPlot(df_operating):
         mine_counts = df_operating['Opening Year'].value_counts().sort_index()
 
         plt.figure(figsize=(10, 6))
@@ -285,8 +279,8 @@ elif selected_page == "Year wise Mines opened in South africa":
         # Display the bar chart using st.pyplot
         st.pyplot(plt)
         st.dataframe(df_operating.sample(5))
-    def showMethaneEmissionYearWisePlot():
-        df = pd.read_excel('./Est/filtered-coal-Africa-operating.xlsx')
+    def showMethaneEmissionYearWisePlot(df):
+        df = df_main_operating
         df['Coal Mine Methane Emissions Estimate (MCM/yr)'] = pd.to_numeric(df['Coal Mine Methane Emissions Estimate (MCM/yr)'], errors='coerce')
         # Group and accumulate emissions by year
         # Group and accumulate emissions by year
@@ -302,8 +296,8 @@ elif selected_page == "Year wise Mines opened in South africa":
 
         # Show the chart using Streamlit
         st.plotly_chart(fig)
-    showPlot()
-    showMethaneEmissionYearWisePlot()
+    showPlot(df_main_operating)
+    showMethaneEmissionYearWisePlot(df_main_operating)
 
 
 elif selected_page == "Trend findings : Emission vs Year Count over years":
@@ -366,7 +360,7 @@ elif selected_page == "Trend findings : Emission vs Year Count over years":
         st.pyplot(plt)
 
     st.title("Trend findings : Emission vs Year Count over years")
-    df_operating = pd.read_excel('./Est/filtered-coal-Africa-operating.xlsx')  
+    df_operating = df_main_operating 
     df_operating['Coal Mine Methane Emissions Estimate (MCM/yr)'] = pd.to_numeric(df_operating['Coal Mine Methane Emissions Estimate (MCM/yr)'], errors='coerce')
     # Group and accumulate emissions by year
     emissions_by_years = df_operating.groupby('Opening Year')['Coal Mine Methane Emissions Estimate (MCM/yr)'].sum()
@@ -416,12 +410,13 @@ elif selected_page == "Trend findings : Emission vs Coal Output":
         plt.grid(True)
         st.pyplot(plt)
     
-    df_coalOutput = pd.read_excel('./Est/filtered-coal-Africa-operating.xlsx')  
+    df = df_main_operating  
+    df_coalOutput = df
     df_coalOutput['Opening Year'] = pd.to_numeric(df_coalOutput['Opening Year'], errors='coerce')
     df_coalOutput['Coal Output (Annual, Mt)'] = pd.to_numeric(df_coalOutput['Coal Output (Annual, Mt)'], errors='coerce')
     coal_output_by_year = df_coalOutput.groupby('Opening Year')['Coal Output (Annual, Mt)'].sum()
     coal_output_by_year = pd.DataFrame({'Year': coal_output_by_year.index, 'Coal Output (Annual, Mt)': coal_output_by_year.values})
-    df_operating = pd.read_excel('./Est/filtered-coal-Africa-operating.xlsx')  
+    df_operating = df 
     df_operating['Coal Mine Methane Emissions Estimate (MCM/yr)'] = pd.to_numeric(df_operating['Coal Mine Methane Emissions Estimate (MCM/yr)'], errors='coerce')
     emissions_by_years = df_operating.groupby('Opening Year')['Coal Mine Methane Emissions Estimate (MCM/yr)'].sum()
     emissions_by_years = pd.DataFrame({'Year': emissions_by_years.index, 'Coal Mine Methane Emissions Estimate (MCM/yr)': emissions_by_years.values})
@@ -467,7 +462,7 @@ elif selected_page == "Top 10 coal producing Mines in South Africa":
 
         # Display the Folium map in Streamlit using st.pydeck_chart
         folium_static(m)
-    df_operating = pd.read_excel('./Est/filtered-coal-Africa-operating.xlsx')
+    df_operating = df_main_operating
     ShowTop10(df_operating)
    # Sample observations
     observations = [
