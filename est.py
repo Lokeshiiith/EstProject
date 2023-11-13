@@ -1,13 +1,9 @@
 import pandas as pd
-import os
-import ipdb
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 import pymannkendall as mk
 import scipy.stats as stats
-from math import sqrt
-import openpyxl
 import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
