@@ -53,7 +53,7 @@ pages = ["Introduction",
          "Year wise Mines opened in South africa", 
          "Trend findings : Emission vs Year Count over years", 
          "Trend findings : Emission vs Coal Output", 
-         "CO2 emission over the years"]
+         "Thank you"]
 selected_page = st.sidebar.radio("Select Page", pages)
 df_main_operating = pd.read_excel('./Est/filtered-coal-South-Africa-operating.xlsx')
 # Display content based on the selected page
@@ -612,7 +612,7 @@ elif selected_page == "Trend findings : Emission vs Coal Output":
     ShowEmissionvsCoalPlot(emissions_by_years, coal_output_by_year)
 
 
-elif selected_page == "CO2 emission over the years":
+elif selected_page == "CO2 emission overs the years":
     st.title("Mean CO2 emission over the years")
     st.write("will update later .. .... ...")
 
